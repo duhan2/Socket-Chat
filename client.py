@@ -59,4 +59,4 @@ if __name__ == "__main__":
     reading_handler.start()
     writing_handler.start()
     
-    print("Beende Main-Thread")
+    #print("Beende Main-Thread")
