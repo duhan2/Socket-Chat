@@ -14,7 +14,7 @@ class handler_thread(threading.Thread):
         
     def run(self):
         
-        if self.operation == 1:   
+        if self.operation == "read":   
 
             while True:
 
@@ -23,7 +23,7 @@ class handler_thread(threading.Thread):
                 print("Recieved Message: ",rcv,"\n")
 
 
-        if self.operation == 2:
+        if self.operation == "write":
 
             #print("Benutzen Sie folgendes Format für ihre Nachrichten [IP-Adresse des Clients/all :][Nachricht]\n")
             print("Schreiben Sie Server:quit zum beenden")
@@ -44,15 +44,15 @@ if __name__ == "__main__":
 
     print("Starte Main-Thread")
 
-    #init UDP Socket
+    #Initialisieren des sockets
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    
+    #Tupel für Server
     server_addr = ('127.0.0.1', 1337)
-
+    #Verbindung zum Server
     client_socket.connect(server_addr)
 
-    reading_handler = handler_thread(client_socket,server_addr,1)
-    writing_handler = handler_thread(client_socket,server_addr,2)
+    reading_handler = handler_thread(client_socket,server_addr,"read")
+    writing_handler = handler_thread(client_socket,server_addr,"write")
 
     reading_handler.start()
     writing_handler.start()
