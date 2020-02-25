@@ -12,8 +12,6 @@ class handler_thread(threading.Thread):
         self.operation = operation
 
         
-
-
     def run(self):
         
         if self.operation == 1:   
@@ -28,13 +26,13 @@ class handler_thread(threading.Thread):
         if self.operation == 2:
 
             #print("Benutzen Sie folgendes Format für ihre Nachrichten [IP-Adresse des Clients/all :][Nachricht]\n")
-            print("Schreiben Sie quit zum beenden")
+            print("Schreiben Sie Server:quit zum beenden")
 
             while True:
                 
                 message = input("Ihre Eingabe?\n")
                 
-                if message == 'quit':
+                if message == "Server:quit":
                     print("Schleife wird beendet")
                     break
 
