@@ -137,7 +137,6 @@ if __name__ == "__main__":
 
                 for client_socket in client_list.keys():
                     if client_list[client_socket] == destuser:
-                        #client_socket.send(bytes(message,"utf-8"))
                         message = onlymessage(message)
                         sendprivate(user,client_socket,message)
                 
