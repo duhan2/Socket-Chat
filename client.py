@@ -20,23 +20,25 @@ class handler_thread(threading.Thread):
 
                 rcv = self.client_socket.recv(1024)
                 rcv = rcv.decode("utf-8")
-                print("Recieved Message: ",rcv,"\n")
+                print(rcv,"\n")
 
 
         if self.operation == "write":
 
             #print("Benutzen Sie folgendes Format für ihre Nachrichten [IP-Adresse des Clients/all :][Nachricht]\n")
-            print("Schreiben Sie Server:quit zum beenden")
+            print("Schreiben Sie \"Server:quit\" zum beenden\n")
 
             while True:
                 
                 message = input("Ihre Eingabe?\n")
                 
                 if message == "Server:quit":
+                    self.client_socket.send(bytes(message,"utf8"))
                     print("Schleife wird beendet")
                     break
 
                 self.client_socket.send(bytes(message,"utf8"))
+
 
 
 
@@ -50,6 +52,9 @@ if __name__ == "__main__":
     server_addr = ('127.0.0.1', 1337)
     #Verbindung zum Server
     client_socket.connect(server_addr)
+
+    msg = input("Enter Username first\n")
+    client_socket.send(bytes(msg,"utf8"))
 
     reading_handler = handler_thread(client_socket,server_addr,"read")
     writing_handler = handler_thread(client_socket,server_addr,"write")
