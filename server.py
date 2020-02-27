@@ -24,6 +24,30 @@ def sendprivate(username,to_socket,msg):
         return False
 #--------------------------------------------------------------------------------------     
 
+def checkforwho(msg):
+    i = 0
+    for characters in msg:
+        if characters == ":":
+            return msg[0:i]
+
+        i = i+1
+    else:
+        return False
+
+#--------------------------------------------------------------------------------------
+
+def onlymessage(msg):
+    i = 0
+    first = 0
+    for characters in msg:
+        if characters == ":":
+            first = i+1
+
+        i = i+1
+    return msg[first:i]
+
+#--------------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     
     print("Starte Main-Thread")
@@ -67,7 +91,7 @@ if __name__ == "__main__":
 
                 print("User verbunden über ",client_address,"mit dem Username:",user,"\n")
 
-                message = "Online Users:" + str(username_list)
+                message = "Online Users:" + str(username_list) + "\n"
                 #Broadcast an Alle Nutzer                
                 for client_sockets in client_list:
                     client_sockets.send(bytes(message,"utf-8"))
@@ -93,18 +117,35 @@ if __name__ == "__main__":
                 
                 user = client_list[notified_socket]
 
-                # Iterate over connected clients and broadcast message
-                for client_socket in client_list:
+                destuser = checkforwho(message)
 
-                    # But don't sent it to sender
-                    if client_socket != notified_socket:
+                if destuser == False:
+                    notified_socket.send(bytes("Could detect username\n","utf-8"))
+                    continue
 
-                        # Send user and message 
-                        message = user + ":" + message + "\n"
-                        client_socket.send(bytes(message,"utf-8"))
+                if destuser == "Broadcast":
+                    # Iterate over connected clients and broadcast message
+                    for client_socket in client_list:
+
+                        # But don't sent it to sender
+                        if client_socket != notified_socket:
+
+                            # Send user and message 
+                            message = user + ":" + message + "\n"
+                            client_socket.send(bytes(message,"utf-8"))
+                    continue
+
+                for client_socket in client_list.keys():
+                    if client_list[client_socket] == destuser:
+                        #client_socket.send(bytes(message,"utf-8"))
+                        message = onlymessage(message)
+                        sendprivate(user,client_socket,message)
+                
+
 
         # It's not really necessary to have this, but will handle some socket exceptions just in case
         for notified_socket in exception_sockets:
+
 
             # Remove from list for socket.socket()
             socket_list.remove(notified_socket)
@@ -113,5 +154,6 @@ if __name__ == "__main__":
             # Remove from our list of users
             del client_list[notified_socket]
         
+            notified_socket.close()
 
     print("Beende Main-Thread")

@@ -26,7 +26,9 @@ class handler_thread(threading.Thread):
         if self.operation == "write":
 
             #print("Benutzen Sie folgendes Format für ihre Nachrichten [IP-Adresse des Clients/all :][Nachricht]\n")
-            print("Schreiben Sie \"Server:quit\" zum beenden\n")
+            print("Syntax fuer spezifische Nachrichten ist folgende: [Username]:[Nachricht]\n")
+            print("Fuer einen Broadcast schreiben Sie \"Broadcast\" an die Stelle des Usernames\n")
+            print("Fuer eine Liste mit Serverinteraktionen, schreiben Sie \"Server:help\" \n")
 
             while True:
                 
