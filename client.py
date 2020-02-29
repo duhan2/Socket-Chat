@@ -25,10 +25,9 @@ class handler_thread(threading.Thread):
 
         if self.operation == "write":
 
-            #print("Benutzen Sie folgendes Format für ihre Nachrichten [IP-Adresse des Clients/all :][Nachricht]\n")
             print("Syntax fuer spezifische Nachrichten ist folgende: [Username]:[Nachricht]\n")
             print("Fuer einen Broadcast schreiben Sie \"Broadcast\" an die Stelle des Usernames\n")
-            print("Fuer eine Liste mit Serverinteraktionen, schreiben Sie \"Server:help\" \n")
+            #print("Fuer eine Liste mit Serverinteraktionen, schreiben Sie \"Server:help\" \n")
 
             while True:
                 
@@ -36,7 +35,8 @@ class handler_thread(threading.Thread):
                 
                 if message == "Server:quit":
                     self.client_socket.send(bytes(message,"utf8"))
-                    print("Schleife wird beendet")
+                    print("Schleife und Socket wird beendet\n")
+                    self.client_socket.close()
                     break
 
                 self.client_socket.send(bytes(message,"utf8"))
