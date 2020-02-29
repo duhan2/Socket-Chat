@@ -120,9 +120,10 @@ if __name__ == "__main__":
                 destuser = checkforwho(message)
 
                 if destuser == False:
-                    notified_socket.send(bytes("Could detect username\n","utf-8"))
+                    notified_socket.send(bytes("Could not detect username\n","utf-8"))
                     continue
 
+                #-----------------------------------------------------------------------------------------
                 if destuser == "Broadcast":
                     # Iterate over connected clients and broadcast message
                     for client_socket in client_list:
@@ -134,6 +135,29 @@ if __name__ == "__main__":
                             message = user + ":" + message + "\n"
                             client_socket.send(bytes(message,"utf-8"))
                     continue
+                    
+                #----------------------------------------------------------------------------------------
+                if message == "Server:quit":
+            
+                    # Remove from list for socket.socket()
+                    socket_list.remove(notified_socket)
+                    username_list.remove(user)
+
+                    # Remove from our list of users
+                    del client_list[notified_socket]
+                    
+                    notified_socket.close()
+
+                    try:
+                        print("User disconnected. Current list:\n")
+                        print(username_list,"\n")
+                    
+                    except:
+                        print("No users connected")
+
+
+                    continue
+
 
                 for client_socket in client_list.keys():
                     if client_list[client_socket] == destuser:
