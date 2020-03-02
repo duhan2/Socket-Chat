@@ -2,6 +2,8 @@ import socket
 import threading
 import select
 import multiprocessing
+import os
+import time
 
 
 #--------------------------------------------------------------------------------------      
@@ -9,9 +11,16 @@ def getmessage(client_socket):
     try:
         msg = client_socket.recv(1024)
         msg = msg.decode("utf-8")
+       
+        #Beim disconnecten sendet Client Leerstrings
+        if not len(msg):
+            return False
+
         return msg
+        
 
     except:
+        #Für den Fall dass der Client vor dem senden abkackt
         return False
 #--------------------------------------------------------------------------------------
 
@@ -48,9 +57,13 @@ def onlymessage(msg):
     return msg[first:i]
 
 def serverrun(ip,portno):
+
     union = (ip,portno)
-    #Initialize und bind Socket. Dann 
+    #Initialize und bind Socket.
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    #Damit man keine Probleme beim recinnecten hat
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
     server_socket.bind(union)
     server_socket.listen(2) #Anzahl der abhörbaren Sockets
     print('Listening for connections on',union,"...\n")
@@ -58,6 +71,7 @@ def serverrun(ip,portno):
     socket_list = [server_socket]
     username_list =["Server"]
     client_list = {}
+    
     while True:
         #read_sockets hat an erster Stelle falls eine Veränderung eintritt
         read_sockets, _, exception_sockets = select.select(socket_list, [], socket_list)
@@ -102,16 +116,29 @@ def serverrun(ip,portno):
             
                 # If False, client disconnected, cleanup
                 if message is False:
-                    print("User:",client_list[notified_socket],"disconnected ")
+
+                    print("User:",client_list[notified_socket],"disconnected\n")
 
                     # Remove from list for socket.socket()
+                    username_list.remove(client_list[notified_socket])
                     socket_list.remove(notified_socket)
+
 
                     # Remove from our list of users
                     del client_list[notified_socket]
+
+                    notified_socket.close()
+
+                    #Jeden Client informieren
+                    message = "Online Users:" + str(username_list) + "\n"
+                    #Broadcast an Alle Nutzer                
+                    for client_sockets in client_list:
+                        client_sockets.send(bytes(message,"utf-8"))
+
                     #Alles ab hier überspringen
                     continue
                 
+
                 user = client_list[notified_socket]
 
                 destuser = checkforwho(message)
@@ -133,29 +160,7 @@ def serverrun(ip,portno):
                             client_socket.send(bytes(message,"utf-8"))
                     continue
                     
-                #----------------------------------------------------------------------------------------
-                if message == "":
             
-                    # Remove from list for socket.socket()
-                    socket_list.remove(notified_socket)
-                    username_list.remove(user)
-
-                    # Remove from our list of users
-                    del client_list[notified_socket]
-                    
-                    notified_socket.close()                 
-
-                    try:
-                        print("User disconnected. Current list:\n")
-                        print(username_list,"\n")
-                    
-                    except:
-                        print("No users connected")
-
-
-                    continue
-
-
                 for client_socket in client_list.keys():
                     if client_list[client_socket] == destuser:
                         message = onlymessage(message)
@@ -187,9 +192,14 @@ if __name__ == "__main__":
 
     p1.start()
     p2.start()
+
+
+    time.sleep(10)
+    p1.terminate()
+    print("Prozess gekillt\n")
+
     p1.join()
     p2.join()
     
-
 
     print("Beende Main-Thread")
