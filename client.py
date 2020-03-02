@@ -2,15 +2,18 @@ import socket
 import threading
 
 class handler_thread(threading.Thread):
+    #Global damit beide Threads beim Reconnecten drauf zugreifen
+    client_socket = 0
 
     def __init__(self,client_socket,server_addr,operation):
        
         threading.Thread.__init__(self)
         
-        self.client_socket = client_socket
         self.server_addr = server_addr
         self.operation = operation
+        self.new_clientsocket = 0
 
+        handler_thread.client_socket = client_socket
         
     def run(self):
         
@@ -18,16 +21,19 @@ class handler_thread(threading.Thread):
 
             while True:
 
-                rcv = self.client_socket.recv(1024)
+                rcv = handler_thread.client_socket.recv(1024)
                 rcv = rcv.decode("utf-8")
                 print(rcv,"\n")
 
-                if rcv == "":
+                #Wenn Server Leerstring sendet, ist er abgestürzt
+                if not len(rcv):
+                    handler_thread.client_socket.close()
                     print("Server abgestuerzt. Verbinde neu\n")
-                    reconnect(self.client_socket,('127.0.0.2',1338))
+                    handler_thread.client_socket = reconnect(self.new_clientsocket,('127.0.0.2',1338))
+                    print("Geben Sie erneut ihren Username ein")
+                    continue
                     
-
-
+        
 
         if self.operation == "write":
 
@@ -39,9 +45,12 @@ class handler_thread(threading.Thread):
                 
                 message = input("Ihre Eingabe?\n")
                 
-                self.client_socket.send(bytes(message,"utf8"))
+                handler_thread.client_socket.send(bytes(message,"utf8"))
+
+#-----------------------------------------------------------------------------------------------------------------
 
 def reconnect(client_socket,server_addr):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     client_socket.connect(server_addr)
     return client_socket
 
