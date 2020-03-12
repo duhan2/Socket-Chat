@@ -5,13 +5,14 @@ class handler_thread(threading.Thread):
     #Global damit beide Threads beim Reconnecten drauf zugreifen
     client_socket = 0
 
-    def __init__(self,client_socket,server_addr,operation):
+    def __init__(self,client_socket,server_addr,operation,username):
        
         threading.Thread.__init__(self)
         
         self.server_addr = server_addr
         self.operation = operation
         self.new_clientsocket = 0
+        self.username = username
 
         handler_thread.client_socket = client_socket
         
@@ -30,6 +31,7 @@ class handler_thread(threading.Thread):
                     handler_thread.client_socket.close()
                     print("Server abgestuerzt. Verbinde neu\n")
                     handler_thread.client_socket = reconnect(self.new_clientsocket,('127.0.0.2',1338))
+                    handler_thread.client_socket.send(bytes(self.username,"utf8"))
                     print("Geben Sie erneut ihren Username ein")
                     continue
                     
@@ -71,10 +73,11 @@ if __name__ == "__main__":
         client_socket.connect(server_addr)
 
     msg = input("Enter Username first\n")
+    username = msg
     client_socket.send(bytes(msg,"utf8"))
 
-    reading_handler = handler_thread(client_socket,server_addr,"read")
-    writing_handler = handler_thread(client_socket,server_addr,"write")
+    reading_handler = handler_thread(client_socket,server_addr,"read",username)
+    writing_handler = handler_thread(client_socket,server_addr,"write",username)
 
     reading_handler.start()
     writing_handler.start()
