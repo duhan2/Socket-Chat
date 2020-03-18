@@ -32,7 +32,6 @@ class handler_thread(threading.Thread):
                     print("Server abgestuerzt. Verbinde neu\n")
                     handler_thread.client_socket = reconnect(self.new_clientsocket,('127.0.0.2',1338))
                     handler_thread.client_socket.send(bytes(self.username,"utf8"))
-                    print("Geben Sie erneut ihren Username ein")
                     continue
                     
         
