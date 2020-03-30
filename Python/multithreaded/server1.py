@@ -22,12 +22,16 @@ class client_thread(threading.Thread):
         #Überspringt diese Schleifenphase
         if user is not False:
 
+            #mutex lock
+            lock.acquire()
             # Add accepted socket to select.select() list
             socket_list.append(self.client_socket)
             username_list.append(user)
 
             # Also save username and username header
             client_list[self.client_socket] = user
+
+            lock.release()
 
             print("User verbunden über ",client_address,"mit dem Username:",user,"\n")
 
@@ -46,12 +50,18 @@ class client_thread(threading.Thread):
 
                 print("User:",client_list[self.client_socket],"disconnected\n")
 
+                #vor Zugriff auf Liste Mutex sperren
+                lock.acquire()
+
                 # Remove from list for socket.socket()
                 username_list.remove(client_list[self.client_socket])
                 socket_list.remove(self.client_socket)
 
                 # Remove from our list of users
                 del client_list[self.client_socket]
+
+                #Nach Zugriff auf Liste freigeben
+                lock.release()
 
                 self.client_socket.close()
 
@@ -153,7 +163,8 @@ if __name__ == "__main__":
     
     print("Starte Main-Thread")
 
-    #serverrun('127.0.0.1',1337) 
+    #Erschaffen der mutex variable
+    lock = threading.Lock()
 
     (ip,portno) = ('127.0.0.1',1337)
     union = ('127.0.0.1',1337)
