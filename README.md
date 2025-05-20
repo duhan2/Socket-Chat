@@ -24,7 +24,7 @@ Ein einfaches Chatprogramm in Python mit einem ausfallsicheren Server.
    ```bash
    git clone https://github.com/duhan2/Socket-Chat.git
    cd Socket-Chat
-````
+
 
 2. **Server starten:**
 
