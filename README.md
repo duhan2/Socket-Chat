@@ -66,5 +66,3 @@ Projekt von [@duhan2](https://github.com/duhan2)
 
 *Made with ❤️ in Python*
 
-```
-
